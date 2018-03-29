@@ -1,0 +1,40 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"applicationName": "TestLogin",
+			"environmentName": "nsg",
+	
+	"Assignment": [{
+		"nicOrSubnet": "subnet",
+		"nsgName": "NSG-NV-FE",
+		"NSGresourceGroupName": "Priya2-RG",
+		"NICorVNETResourceGrupName": "PriyaRG",
+		"targetResourceSettings": {
+			"value": {
+				"VnetNameOfSubnet": "Priya-Vnet",
+				"subnet": [{
+						"name": "Subnet1",
+						"addressPrefix": "10.8.1.0/24"
+					},
+					{
+						"name": "Subnet2",
+						"addressPrefix": "10.8.2.0/24"
+					},
+					{
+						"name": "Subnet3",
+						"addressPrefix": "10.8.3.0/24"
+					}
+				],
+				"nic": [{
+						"subnetName": "default",
+						"name": "priya-NIC",
+						"ipConfigName": "ipconfig1",
+						"privateIP": "10.8.0.4"
+
+					}
+				]
+			}
+		}
+				
+		
+	}]
+}

@@ -1,0 +1,58 @@
+{
+	"contentVersion": "1.0.0.0",
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"parameters": {
+		"nicSettings": {
+			"type": "object"
+		},
+		"noOfNic": {
+			"type": "int"
+		},
+		"nsgName": {
+			"type": "string"
+		},
+		"NSGresourceGroupName": {
+			"type": "string"
+		},
+		"nicOrsubnet": {
+			"type": "string",
+			"allowedvalues": [
+				"nic",
+				"subnet"
+			]
+		}
+	},
+	"variables": {
+		"NICResourceGrupName": "[parameters('nicSettings').NICResourceGrupName]",
+		"vnetName": "[parameters('nicSettings').VnetNameOfNic]"
+	},
+	"resources": [{
+			"condition": "[equals(parameters('nicOrsubnet'),'nic')]",
+			"apiVersion": "2015-06-15",
+			"type": "Microsoft.Network/networkInterfaces",
+			"name": "[parameters('nicSettings').nic[copyIndex()].name]",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"mode": "Incremental",
+				"networkSecurityGroup": {
+					"id": "[resourceId(parameters('NSGresourceGroupName'),'Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+				},
+				"ipConfigurations": [{
+					"name": "[parameters('nicSettings').nic[copyIndex()].ipConfigName]",
+					"properties": {
+						"privateIPAddress": "[parameters('nicSettings').nic[copyIndex()].privateIP]",
+						"subnet": {
+							"id": "[resourceId(variables('NICResourceGrupName'),'Microsoft.Network/virtualNetworks/subnets',variables('vnetName'),parameters('nicSettings').nic[copyIndex()].subnetName)]"
+						}
+					}
+				}]
+			},
+			"copy": {
+				"name": "nsgNIC",
+				"count": "[parameters('noOfNic')]"
+			}
+		}
+
+
+	]
+}

@@ -1,0 +1,82 @@
+{
+	"contentversion": "1.0.0.0",
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"parameters": {
+		"networkSecurityGroupSettings": {
+			"type": "object"
+		},
+		"noofsecurityrules": {
+			"type": "int"
+		},
+		"newOrExisting": {
+			"type": "string",
+			"allowedvalues": [
+				"new",
+				"existing"
+			]
+		},
+		"environment": {
+			"type": "string",
+			"defaultValue": "nsg",
+			"metadata": {
+				"description": "Environment"
+			}
+		}
+	},
+	"variables": {
+		"NSGname": "[parameters('networkSecurityGroupSettings').name]"
+	},
+	"resources": [{
+			"condition": "[equals(parameters('newOrExisting'),'new')]",
+			"apiVersion": "2015-06-15",
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"name": "[parameters('networkSecurityGroupSettings').name]",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"mode": "Incremental",
+				"copy": [{
+					"name": "securityRules",
+					"count": "[parameters('noofsecurityrules')]",
+					"input": {
+						"name": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex('securityRules')].name]",
+						"properties": {
+							"description": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex('securityRules')].description]",
+							"priority": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex('securityRules')].priority]",
+							"protocol": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex('securityRules')].protocol]",
+							"sourcePortRange": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex('securityRules')].sourcePortRange]",
+							"destinationPortRange": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex('securityRules')].destinationPortRange]",
+							"sourceAddressPrefix": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex('securityRules')].sourceAddressPrefix]",
+							"destinationAddressPrefix": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex('securityRules')].destinationAddressPrefix]",
+							"access": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex('securityRules')].access]",
+							"direction": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex('securityRules')].direction]"
+
+						}
+					}
+				}]
+			}
+		},
+		{
+			"condition": "[equals(parameters('newOrExisting'),'existing')]",
+			"type": "Microsoft.Network/networkSecurityGroups/securityRules",
+			"name": "[concat(variables('NSGname'), '/',parameters('networkSecurityGroupSettings').securityRules[copyIndex()].name)]",
+			"apiVersion": "2015-06-15",
+			"location": "[resourceGroup().location]",
+			"properties": {
+				"description": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex()].description]",
+				"priority": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex()].priority]",
+				"protocol": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex()].protocol]",
+				"sourcePortRange": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex()].sourcePortRange]",
+				"destinationPortRange": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex()].destinationPortRange]",
+				"sourceAddressPrefix": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex()].sourceAddressPrefix]",
+				"destinationAddressPrefix": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex()].destinationAddressPrefix]",
+				"access": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex()].access]",
+				"direction": "[parameters('networkSecurityGroupSettings').securityRules[copyIndex()].direction]"
+
+			},
+			"copy": {
+				"name": "securityRulesCopy",
+				"count": "[parameters('noofsecurityrules')]"
+			}
+		}
+	]
+}

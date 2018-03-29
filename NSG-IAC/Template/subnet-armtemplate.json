@@ -1,0 +1,48 @@
+{
+	"contentVersion": "1.0.0.0",
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"parameters": {
+		"subnetSettings": {
+			"type": "object"
+		},
+		"noOfSubnet": {
+			"type": "int"
+		},
+		"nsgName": {
+			"type": "string"
+		},
+		"NSGresourceGroupName": {
+			"type": "string"
+		},
+		"nicOrsubnet": {
+			"type": "string",
+			"allowedvalues": [
+				"nic",
+				"subnet"
+			]
+		}
+	},
+	"variables": {
+		"vnetname": "[parameters('subnetSettings').VnetNameOfSubnet]"
+	},
+	"resources": [{
+			"condition": "[equals(parameters('nicOrsubnet'),'subnet')]",
+			"apiVersion": "2015-06-15",
+			"type": "Microsoft.Network/virtualNetworks/subnets",
+			"location": "[resourceGroup().location]",
+			"name": "[concat(variables('vnetname'), '/',parameters('subnetSettings').subnet[copyIndex()].name)]",
+			"properties": {
+				"mode": "Incremental",
+				"addressPrefix": "[parameters('subnetSettings').subnet[copyIndex()].addressPrefix]",
+				"networkSecurityGroup": {
+					"id": "[resourceId(parameters('NSGresourceGroupName'),'Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+				}
+			},
+			"copy": {
+				"name": "subnetcopy",
+				"count": "[parameters('noOfSubnet')]"
+			}
+		}
+
+	]
+}
