@@ -2,7 +2,7 @@
 [string]$settingFile="C:\Users\cloudo\Documents\NSG-IAC\Settings\T_Settings.json",
 [string]$armDeploymentTemplateFile = "C:\Users\cloudo\Documents\NSG-IAC\Template\Nsgrule-armtemplate.json",
 [string]$armAssignmentTemplateFile = "C:\Users\cloudo\Documents\NSG-IAC\Template\Nsgrule-Deploy.json",
-$unitTestMode=$false
+$unitTestMode=$true
  )
  function Get-SubnetArray {
  param
